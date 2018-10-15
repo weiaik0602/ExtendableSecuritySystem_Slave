@@ -1,0 +1,4 @@
+build/*
+!build/Readme.txt
+/Debug/
+/Drivers/
