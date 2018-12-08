@@ -34,7 +34,9 @@ struct spi_data{
 
 //variables
 sm_state slave_sm_state;
-
+extern volatile spi_data spi_receive_buffer[BUFFER_SIZE],spi_send_buffer[BUFFER_SIZE];
+extern volatile uint8_t spi_receive[SPI_SIZE];
+extern volatile uint8_t spi_receive_position, spi_use_position;
 
 
 
@@ -43,5 +45,5 @@ sm_state slave_sm_state;
 //Functions
 void Slave_StateMachine();
 void IDLE_Func();
-
+void SPI_Receive_Buffer();
 #endif // _SLAVEFUNC_H

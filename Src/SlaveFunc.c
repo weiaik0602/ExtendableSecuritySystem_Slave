@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "main.h"
+#include "mockFunc.h"
 
 //global variable
 volatile spi_data spi_receive_buffer[BUFFER_SIZE],spi_send_buffer[BUFFER_SIZE];
@@ -28,7 +29,7 @@ void Slave_StateMachine() {
 
 //place inside SPI-DMA interrupt
 void SPI_Receive_Buffer(){
-  if(spi_receive_position >= BUFFER_SIZE){
+  if(spi_receive_position >= BUFFER_SIZE-1){
     spi_receive_position = 0;
   }
   spi_receive_buffer[spi_receive_position].module = spi_receive[0];
@@ -80,5 +81,6 @@ void IDLE_Func(){
         break;
 
     }
+    spi_use_position++;
   }
 }
