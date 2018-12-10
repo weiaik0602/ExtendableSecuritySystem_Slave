@@ -6,14 +6,10 @@
  */
 #include <stdint.h>
 #include <stdio.h>
-#include "LAFunction.h"
+#include "SlaveFunc.h"
 #include "main.h"
-#include "stm32f1xx_hal.h"
-#include "usb_device.h"
-#include "usbd_cdc_if.h"
 
 
-extern ADC_HandleTypeDef hadc1;
 //global variable
 // define variables
 //private definition

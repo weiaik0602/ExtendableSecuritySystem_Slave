@@ -26,8 +26,8 @@ struct spi_data{
 #define MODULE_Lock 2
 #define MODULE_Led 3
 //action
-#define ACTION_Open 0
-#define ACTION_Close 1
+#define ACTION_Open 0xa
+#define ACTION_Close 0xb
 //reply
 #define REPLY_Here 0
 #define REPLY_NA 0xF

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "main.h"
+//#include "main.h"
 #include "mockFunc.h"
 
 //global variable
@@ -15,6 +15,7 @@ volatile uint8_t spi_receive_position, spi_use_position;
 void Slave_StateMachine() {
   switch (slave_sm_state){
     case Init:
+    	slave_sm_state = Idle;
     break;
 
     case Idle:
@@ -52,26 +53,36 @@ void IDLE_Func(){
       break;
 
       case MODULE_Buzzer :
-        if(spi_receive_buffer[spi_use_position].data == ACTION_Open)
+        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
           Open_Buzzer();
-        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close)
+          SPI_Reply(MODULE_Buzzer, ACTION_Open);
+        }
+        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close){
           Close_Buzzer();
+          SPI_Reply(MODULE_Buzzer, ACTION_Close);
+        }
         else
           SPI_Reply(MODULE_Buzzer, REPLY_NA);
       break;
 
       case MODULE_Lock :
-        if(spi_receive_buffer[spi_use_position].data == ACTION_Open)
+        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
           OpenThenClose_Lock();
+          SPI_Reply(MODULE_Lock, ACTION_Open);
+        }
         else
           SPI_Reply(MODULE_Lock, REPLY_NA);
       break;
 
       case MODULE_Led :
-        if(spi_receive_buffer[spi_use_position].data == ACTION_Open)
+        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
           Open_LED();
-        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close)
+          SPI_Reply(MODULE_Led, ACTION_Open);
+        }
+        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close){
           Close_LED();
+          SPI_Reply(MODULE_Led, ACTION_Close);
+        }
         else
           SPI_Reply(MODULE_Led, REPLY_NA);
       break;
@@ -81,6 +92,10 @@ void IDLE_Func(){
         break;
 
     }
-    spi_use_position++;
+    if(spi_use_position <= BUFFER_SIZE-1){
+    	spi_use_position ++;
+      }
+    else
+    	spi_use_position = 0;
   }
 }
