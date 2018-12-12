@@ -127,6 +127,8 @@ int main(void)
   while (1)
   {
   	Slave_StateMachine();
+  	//uint8_t pData[]={0xa,1,0x5};
+  	//HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), 3,2000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -306,7 +308,7 @@ void OpenThenClose_Lock()
 void SPI_Reply(uint8_t module, uint8_t data)
 {
 	uint8_t pData[]={module,1,data};
-	HAL_SPI_Transmit(&hspi1, (uint8_t*)&pData, sizeof(pData),200);
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),200);
 }
 /* USER CODE END 4 */
 

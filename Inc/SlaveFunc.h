@@ -18,8 +18,8 @@ struct spi_data{
 };
 
 //define
-#define SPI_SIZE 10
-#define BUFFER_SIZE 10
+#define SPI_SIZE 5
+#define BUFFER_SIZE 5
 //module
 #define MODULE_Self 0
 #define MODULE_Buzzer 1
@@ -29,7 +29,7 @@ struct spi_data{
 #define ACTION_Open 0xa
 #define ACTION_Close 0xb
 //reply
-#define REPLY_Here 0
+#define REPLY_Here 0x7
 #define REPLY_NA 0xF
 
 //variables
@@ -46,4 +46,5 @@ extern volatile uint8_t spi_receive_position, spi_use_position;
 void Slave_StateMachine();
 void IDLE_Func();
 void SPI_Receive_Buffer();
+void DMAS2_Func(spi_data data);
 #endif // _SLAVEFUNC_H
