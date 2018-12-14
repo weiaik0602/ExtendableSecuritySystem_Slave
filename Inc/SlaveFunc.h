@@ -18,7 +18,7 @@ struct spi_data{
 };
 
 //define
-#define SPI_SIZE 5
+#define SPI_SIZE 3
 #define BUFFER_SIZE 5
 //module
 #define MODULE_Self 0

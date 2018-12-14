@@ -64,7 +64,6 @@
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef hdma_spi1_rx;
-DMA_HandleTypeDef hdma_spi1_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -78,7 +77,8 @@ static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+volatile uint8_t reset = 0;
+volatile uint8_t lockOpened = 0;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -126,7 +126,22 @@ int main(void)
   uint8_t* received;
   while (1)
   {
-  	Slave_StateMachine();
+  	//volatile HAL_SPI_StateTypeDef stat = HAL_SPI_GetState(&hspi1);
+  	if(reset == 1){
+  		HAL_Delay(200);
+  		HAL_SPI_DeInit(&hspi1);
+  		//HAL_Delay(200);
+  		HAL_SPI_Init(&hspi1);
+  		HAL_SPI_Receive_DMA(&hspi1, &spi_receive[0], 3);
+  		reset = 0;
+  	}
+  if(lockOpened == 1){
+  	HAL_Delay(200);
+  	HAL_GPIO_WritePin(Lock_GPIO_Port,Lock_Pin,RESET);
+  	lockOpened =0;
+  }
+
+  	//Slave_StateMachine();
   	//uint8_t pData[]={0xa,1,0x5};
   	//HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), 3,2000);
     /* USER CODE END WHILE */
@@ -152,21 +167,11 @@ void SystemClock_Config(void)
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
   /**Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 15;
-  RCC_OscInitStruct.PLL.PLLN = 108;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /**Activate the Over-Drive mode 
-  */
-  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     Error_Handler();
   }
@@ -174,12 +179,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -234,9 +239,6 @@ static void MX_DMA_Init(void)
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-  /* DMA2_Stream3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
 
 }
 
@@ -301,14 +303,26 @@ void Close_Buzzer()
 void OpenThenClose_Lock()
 {
 	HAL_GPIO_WritePin(Lock_GPIO_Port,Lock_Pin,SET);
-	HAL_Delay(100);
-	HAL_GPIO_WritePin(Lock_GPIO_Port,Lock_Pin,RESET);
+	lockOpened = 1;
 }
 
 void SPI_Reply(uint8_t module, uint8_t data)
 {
 	uint8_t pData[]={module,1,data};
 	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),200);
+	reset = 1;
+
+}
+volatile uint8_t temp[3]={0,0,0};
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
+	spi_data spi;
+	spi.module = spi_receive[0];
+	spi.size = spi_receive[1];
+	spi.data = spi_receive[2];
+	temp[0] = spi_receive[0];
+	temp[1] = spi_receive[1];
+	temp[2] = spi_receive[2];
+	DMAS2_Func(spi);
 }
 /* USER CODE END 4 */
 

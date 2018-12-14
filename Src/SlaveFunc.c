@@ -1,4 +1,4 @@
-data#include "SlaveFunc.h"
+#include "SlaveFunc.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -39,23 +39,23 @@ void SPI_Receive_Buffer(){
   spi_receive_position++;
 }
 
-void DMAS2_Func(spi_data data){
-  switch (data.module){
+void DMAS2_Func(spi_data spi){
+  switch (spi_receive[0]){
     case MODULE_Self :
-      if(data.data == ACTION_Open)
+      if(spi_receive[2] == ACTION_Open)
         SPI_Reply(MODULE_Self, REPLY_Here);
-      else if(data.data == ACTION_Close)
+      else if(spi_receive[2] == ACTION_Close)
         SPI_Reply(MODULE_Self, REPLY_NA);
       else
         SPI_Reply(MODULE_Self, REPLY_NA);
     break;
 
     case MODULE_Buzzer :
-      if(data.data == ACTION_Open){
+      if(spi_receive[2] == ACTION_Open){
         Open_Buzzer();
         SPI_Reply(MODULE_Buzzer, ACTION_Open);
       }
-      else if(data.data == ACTION_Close){
+      else if(spi_receive[2] == ACTION_Close){
         Close_Buzzer();
         SPI_Reply(MODULE_Buzzer, ACTION_Close);
       }
@@ -64,7 +64,7 @@ void DMAS2_Func(spi_data data){
     break;
 
     case MODULE_Lock :
-      if(data.data == ACTION_Open){
+      if(spi_receive[2] == ACTION_Open){
         OpenThenClose_Lock();
         SPI_Reply(MODULE_Lock, ACTION_Open);
       }
@@ -73,11 +73,11 @@ void DMAS2_Func(spi_data data){
     break;
 
     case MODULE_Led :
-      if(data.data == ACTION_Open){
+      if(spi_receive[2] == ACTION_Open){
         Open_LED();
         SPI_Reply(MODULE_Led, ACTION_Open);
       }
-      else if(data.data == ACTION_Close){
+      else if(spi_receive[2] == ACTION_Close){
         Close_LED();
         SPI_Reply(MODULE_Led, ACTION_Close);
       }
