@@ -28,7 +28,10 @@ struct spi_data{
 //action
 #define ACTION_Open 0xa
 #define ACTION_Close 0xb
+#define ACTION_Read 0xc
 //reply
+#define REPLY_Set 0x5
+#define REPLY_Reset 0x6
 #define REPLY_Here 0x7
 #define REPLY_NA 0xF
 

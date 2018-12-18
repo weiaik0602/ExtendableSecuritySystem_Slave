@@ -59,6 +59,9 @@ void DMAS2_Func(spi_data spi){
         Close_Buzzer();
         SPI_Reply(MODULE_Buzzer, ACTION_Close);
       }
+      else if(spi_receive[2] == ACTION_Read){
+      	Read_Buzzer();
+      }
       else
         SPI_Reply(MODULE_Buzzer, REPLY_NA);
     break;
@@ -68,6 +71,9 @@ void DMAS2_Func(spi_data spi){
         OpenThenClose_Lock();
         SPI_Reply(MODULE_Lock, ACTION_Open);
       }
+      else if(spi_receive[2] == ACTION_Read){
+				Read_Lock();
+			}
       else
         SPI_Reply(MODULE_Lock, REPLY_NA);
     break;
@@ -81,6 +87,9 @@ void DMAS2_Func(spi_data spi){
         Close_LED();
         SPI_Reply(MODULE_Led, ACTION_Close);
       }
+      else if(spi_receive[2] == ACTION_Read){
+				Read_Led();
+			}
       else
         SPI_Reply(MODULE_Led, REPLY_NA);
     break;
@@ -88,67 +97,66 @@ void DMAS2_Func(spi_data spi){
     default :
       SPI_Reply(REPLY_NA, REPLY_NA);
       break;
-
   }
 }
 
-//place in state Idle
-void IDLE_Func(){
-  if(spi_use_position != spi_receive_position){
-    switch (spi_receive_buffer[spi_use_position].module){
-      case MODULE_Self :
-        if(spi_receive_buffer[spi_use_position].data == ACTION_Open)
-          SPI_Reply(MODULE_Self, REPLY_Here);
-        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close)
-          SPI_Reply(MODULE_Self, REPLY_NA);
-        else
-          SPI_Reply(MODULE_Self, REPLY_NA);
-      break;
-
-      case MODULE_Buzzer :
-        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
-          Open_Buzzer();
-          SPI_Reply(MODULE_Buzzer, ACTION_Open);
-        }
-        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close){
-          Close_Buzzer();
-          SPI_Reply(MODULE_Buzzer, ACTION_Close);
-        }
-        else
-          SPI_Reply(MODULE_Buzzer, REPLY_NA);
-      break;
-
-      case MODULE_Lock :
-        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
-          OpenThenClose_Lock();
-          SPI_Reply(MODULE_Lock, ACTION_Open);
-        }
-        else
-          SPI_Reply(MODULE_Lock, REPLY_NA);
-      break;
-
-      case MODULE_Led :
-        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
-          Open_LED();
-          SPI_Reply(MODULE_Led, ACTION_Open);
-        }
-        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close){
-          Close_LED();
-          SPI_Reply(MODULE_Led, ACTION_Close);
-        }
-        else
-          SPI_Reply(MODULE_Led, REPLY_NA);
-      break;
-
-      default :
-        SPI_Reply(REPLY_NA, REPLY_NA);
-        break;
-
-    }
-    if(spi_use_position <= BUFFER_SIZE-1){
-    	spi_use_position ++;
-      }
-    else
-    	spi_use_position = 0;
-  }
-}
+////place in state Idle
+//void IDLE_Func(){
+//  if(spi_use_position != spi_receive_position){
+//    switch (spi_receive_buffer[spi_use_position].module){
+//      case MODULE_Self :
+//        if(spi_receive_buffer[spi_use_position].data == ACTION_Open)
+//          SPI_Reply(MODULE_Self, REPLY_Here);
+//        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close)
+//          SPI_Reply(MODULE_Self, REPLY_NA);
+//        else
+//          SPI_Reply(MODULE_Self, REPLY_NA);
+//      break;
+//
+//      case MODULE_Buzzer :
+//        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
+//          Open_Buzzer();
+//          SPI_Reply(MODULE_Buzzer, ACTION_Open);
+//        }
+//        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close){
+//          Close_Buzzer();
+//          SPI_Reply(MODULE_Buzzer, ACTION_Close);
+//        }
+//        else
+//          SPI_Reply(MODULE_Buzzer, REPLY_NA);
+//      break;
+//
+//      case MODULE_Lock :
+//        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
+//          OpenThenClose_Lock();
+//          SPI_Reply(MODULE_Lock, ACTION_Open);
+//        }
+//        else
+//          SPI_Reply(MODULE_Lock, REPLY_NA);
+//      break;
+//
+//      case MODULE_Led :
+//        if(spi_receive_buffer[spi_use_position].data == ACTION_Open){
+//          Open_LED();
+//          SPI_Reply(MODULE_Led, ACTION_Open);
+//        }
+//        else if(spi_receive_buffer[spi_use_position].data == ACTION_Close){
+//          Close_LED();
+//          SPI_Reply(MODULE_Led, ACTION_Close);
+//        }
+//        else
+//          SPI_Reply(MODULE_Led, REPLY_NA);
+//      break;
+//
+//      default :
+//        SPI_Reply(REPLY_NA, REPLY_NA);
+//        break;
+//
+//    }
+//    if(spi_use_position <= BUFFER_SIZE-1){
+//    	spi_use_position ++;
+//      }
+//    else
+//    	spi_use_position = 0;
+//  }
+//}

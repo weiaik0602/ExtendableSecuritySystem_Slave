@@ -64,6 +64,7 @@
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef hdma_spi1_rx;
+DMA_HandleTypeDef hdma_spi1_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -132,7 +133,7 @@ int main(void)
   		HAL_SPI_DeInit(&hspi1);
   		//HAL_Delay(200);
   		HAL_SPI_Init(&hspi1);
-  		HAL_SPI_Receive_DMA(&hspi1, &spi_receive[0], 3);
+  		HAL_SPI_Receive_DMA(&hspi1, (uint8_t*)(&spi_receive[0]), 3);
   		reset = 0;
   	}
   if(lockOpened == 1){
@@ -239,6 +240,9 @@ static void MX_DMA_Init(void)
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+  /* DMA2_Stream3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
 
 }
 
@@ -305,24 +309,59 @@ void OpenThenClose_Lock()
 	HAL_GPIO_WritePin(Lock_GPIO_Port,Lock_Pin,SET);
 	lockOpened = 1;
 }
-
+void Read_Buzzer(){
+	GPIO_PinState stat = HAL_GPIO_ReadPin(Buzzer_GPIO_Port,Buzzer_Pin);
+	uint8_t pData[3]= {MODULE_Buzzer,1,REPLY_NA};;
+	if(stat == GPIO_PIN_SET){
+		pData[2] = REPLY_Set;
+	}
+	else if(stat == GPIO_PIN_RESET){
+		pData[2] = REPLY_Reset;
+	}
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+}
+void Read_Led(){
+	GPIO_PinState stat = HAL_GPIO_ReadPin(Led_GPIO_Port,Led_Pin);
+	uint8_t pData[3]= {MODULE_Led,1,REPLY_NA};;
+	if(stat == GPIO_PIN_SET){
+		pData[2] = REPLY_Set;
+	}
+	else if(stat == GPIO_PIN_RESET){
+		pData[2] = REPLY_Reset;
+	}
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+}
+void Read_Lock(){
+	GPIO_PinState stat = HAL_GPIO_ReadPin(Lock_GPIO_Port,Lock_Pin);
+	uint8_t pData[3]= {MODULE_Lock,1,REPLY_NA};;
+	if(stat == GPIO_PIN_SET){
+		pData[2] = REPLY_Set;
+	}
+	else if(stat == GPIO_PIN_RESET){
+		pData[2] = REPLY_Reset;
+	}
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+}
 void SPI_Reply(uint8_t module, uint8_t data)
 {
 	uint8_t pData[]={module,1,data};
-	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),200);
-	reset = 1;
-
+	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_4) == RESET){
+		HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+		reset = 1;
+	}
 }
 volatile uint8_t temp[3]={0,0,0};
+volatile uint8_t count =0;
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
 	spi_data spi;
 	spi.module = spi_receive[0];
 	spi.size = spi_receive[1];
 	spi.data = spi_receive[2];
-	temp[0] = spi_receive[0];
-	temp[1] = spi_receive[1];
-	temp[2] = spi_receive[2];
-	DMAS2_Func(spi);
+	count++;
+	//if(count ==2){
+		DMAS2_Func(spi);
+		count =0;
+	//}
 }
 /* USER CODE END 4 */
 
