@@ -9,7 +9,7 @@
 volatile spi_data spi_receive_buffer[BUFFER_SIZE],spi_send_buffer[BUFFER_SIZE];
 volatile uint8_t spi_receive[SPI_SIZE];
 volatile uint8_t spi_receive_position, spi_use_position;
-
+volatile uint8_t buttonPressed = 0;
 
 
 void Slave_StateMachine() {
@@ -42,10 +42,8 @@ void SPI_Receive_Buffer(){
 void DMAS2_Func(spi_data spi){
   switch (spi_receive[0]){
     case MODULE_Self :
-      if(spi_receive[2] == ACTION_Open)
+      if(spi_receive[2] == ACTION_Read)
         SPI_Reply(MODULE_Self, REPLY_Here);
-      else if(spi_receive[2] == ACTION_Close)
-        SPI_Reply(MODULE_Self, REPLY_NA);
       else
         SPI_Reply(MODULE_Self, REPLY_NA);
     break;

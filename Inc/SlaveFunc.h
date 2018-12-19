@@ -30,9 +30,9 @@ struct spi_data{
 #define ACTION_Close 0xb
 #define ACTION_Read 0xc
 //reply
-#define REPLY_Set 0x5
-#define REPLY_Reset 0x6
-#define REPLY_Here 0x7
+#define REPLY_Set 0xa
+#define REPLY_Reset 0xb
+#define REPLY_Here 0xa
 #define REPLY_NA 0xF
 
 //variables
@@ -40,7 +40,7 @@ sm_state slave_sm_state;
 extern volatile spi_data spi_receive_buffer[BUFFER_SIZE],spi_send_buffer[BUFFER_SIZE];
 extern volatile uint8_t spi_receive[SPI_SIZE];
 extern volatile uint8_t spi_receive_position, spi_use_position;
-
+extern volatile uint8_t buttonPressed;
 
 
 
