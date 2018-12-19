@@ -267,6 +267,12 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(Led_GPIO_Port, Led_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin : Button_Pin */
+  GPIO_InitStruct.Pin = Button_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Button_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pins : Buzzer_Pin Lock_Pin */
   GPIO_InitStruct.Pin = Buzzer_Pin|Lock_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -345,10 +351,9 @@ void Read_Lock(){
 void SPI_Reply(uint8_t module, uint8_t data)
 {
 	uint8_t pData[]={module,1,data};
-	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_4) == RESET){
-		HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
-		reset = 1;
-	}
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+	reset = 1;
 }
 volatile uint8_t temp[3]={0,0,0};
 volatile uint8_t count =0;

@@ -83,6 +83,8 @@ extern void SPI_Reply(uint8_t module, uint8_t data);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Button_Pin GPIO_PIN_1
+#define Button_GPIO_Port GPIOB
 #define Buzzer_Pin GPIO_PIN_12
 #define Buzzer_GPIO_Port GPIOB
 #define Lock_Pin GPIO_PIN_13
