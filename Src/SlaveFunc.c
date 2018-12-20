@@ -92,6 +92,18 @@ void DMAS2_Func(spi_data spi){
         SPI_Reply(MODULE_Led, REPLY_NA);
     break;
 
+    case MODULE_Button:
+    	if(spi_receive[2] == ACTION_Open || spi_receive[2] == ACTION_Read){
+				SPI_Reply(MODULE_Button, buttonPressed);
+			}
+    	else if(spi_receive[2] == ACTION_Close){
+    		buttonPressed = 0;
+    		SPI_Reply(MODULE_Button, ACTION_Close);
+    	}
+    	else
+				SPI_Reply(MODULE_Button, REPLY_NA);
+    	break;
+
     default :
       SPI_Reply(REPLY_NA, REPLY_NA);
       break;

@@ -25,6 +25,7 @@ struct spi_data{
 #define MODULE_Buzzer 1
 #define MODULE_Lock 2
 #define MODULE_Led 3
+#define MODULE_Button 4
 //action
 #define ACTION_Open 0xa
 #define ACTION_Close 0xb
