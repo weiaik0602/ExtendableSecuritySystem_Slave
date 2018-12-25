@@ -346,34 +346,36 @@ void OpenThenClose_Lock()
 }
 void Read_Buzzer(){
 	GPIO_PinState stat = HAL_GPIO_ReadPin(Buzzer_GPIO_Port,Buzzer_Pin);
+	uint8_t pData[3]= {MODULE_Buzzer,1,REPLY_NA};;
 	if(stat == GPIO_PIN_SET){
-		SPI_Reply(MODULE_Buzzer,REPLY_Set);
+		pData[2] = REPLY_Set;
 	}
 	else if(stat == GPIO_PIN_RESET){
-		SPI_Reply(MODULE_Buzzer,REPLY_Reset);
+		pData[2] = REPLY_Reset;
 	}
-	SPI_Reply(MODULE_Buzzer,REPLY_NA);
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
 }
 void Read_Led(){
 	GPIO_PinState stat = HAL_GPIO_ReadPin(Led_GPIO_Port,Led_Pin);
+	uint8_t pData[3]= {MODULE_Led,1,REPLY_NA};;
 	if(stat == GPIO_PIN_SET){
-		SPI_Reply(MODULE_Led,REPLY_Set);
+		pData[2] = REPLY_Set;
 	}
 	else if(stat == GPIO_PIN_RESET){
-		SPI_Reply(MODULE_Led,REPLY_Reset);
+		pData[2] = REPLY_Reset;
 	}
-	else
-		SPI_Reply(MODULE_Led,REPLY_NA);
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
 }
 void Read_Lock(){
 	GPIO_PinState stat = HAL_GPIO_ReadPin(Lock_GPIO_Port,Lock_Pin);
+	uint8_t pData[3]= {MODULE_Lock,1,REPLY_NA};;
 	if(stat == GPIO_PIN_SET){
-		SPI_Reply(MODULE_Lock,REPLY_Set);
+		pData[2] = REPLY_Set;
 	}
 	else if(stat == GPIO_PIN_RESET){
-		SPI_Reply(MODULE_Lock,REPLY_Reset);
+		pData[2] = REPLY_Reset;
 	}
-	SPI_Reply(MODULE_Lock,REPLY_NA);
+	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
 }
 void SPI_Reply(uint8_t module, uint8_t data)
 {
