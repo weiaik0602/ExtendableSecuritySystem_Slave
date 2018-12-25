@@ -42,10 +42,13 @@ void SPI_Receive_Buffer(){
 void DMAS2_Func(spi_data spi){
   switch (spi_receive[0]){
     case MODULE_Self :
-      if(spi_receive[2] == ACTION_Read)
+    	if(spi_receive[2] == ACTION_Open || spi_receive[2] == ACTION_Read){
+      	Open_Self();
         SPI_Reply(MODULE_Self, REPLY_Here);
-      else
+      }
+      else{
         SPI_Reply(MODULE_Self, REPLY_NA);
+      }
     break;
 
     case MODULE_Buzzer :
