@@ -62,9 +62,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
-DMA_HandleTypeDef hdma_spi1_rx;
-DMA_HandleTypeDef hdma_spi1_tx;
+UART_HandleTypeDef huart7;
+DMA_HandleTypeDef hdma_uart7_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -75,7 +74,7 @@ DMA_HandleTypeDef hdma_spi1_tx;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_SPI1_Init(void);
+static void MX_UART7_Init(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -118,42 +117,20 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_SPI1_Init();
+  MX_UART7_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  HAL_SPI_Init(&hspi1);
-  HAL_SPI_Receive_DMA(&hspi1, &spi_receive[0], 3);
+  HAL_UART_Receive_DMA(&huart7, (uint8_t*)&spi_receive,3);
 
-
-  uint8_t dataSend[3] = {1,2,3};
-  //HAL_SPI_Transmit(&hspi1, (uint8_t*)&(dataSend[0]), 3,20);
+  //HAL_UART_DeInit(&huart4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint8_t* received;
   while (1)
   {
-  	//volatile HAL_SPI_StateTypeDef stat = HAL_SPI_GetState(&hspi1);
-  	if(reset == 1){
-  		HAL_Delay(200);
-  		HAL_SPI_DeInit(&hspi1);
-  		//HAL_Delay(200);
-  		HAL_SPI_Init(&hspi1);
-  		HAL_SPI_Receive_DMA(&hspi1, (uint8_t*)(&spi_receive[0]), 3);
-  		reset = 0;
-  	}
-  if(lockOpened == 1){
-  	HAL_Delay(200);
-  	HAL_GPIO_WritePin(Lock_GPIO_Port,Lock_Pin,RESET);
-  	lockOpened =0;
-  }
-
-  	//Slave_StateMachine();
-  	//uint8_t pData[]={0xa,1,0x5};
-  	//HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), 3,2000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -206,48 +183,41 @@ void SystemClock_Config(void)
   */
 static void MX_NVIC_Init(void)
 {
-  /* SPI1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SPI1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(SPI1_IRQn);
   /* EXTI0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 }
 
 /**
-  * @brief SPI1 Initialization Function
+  * @brief UART7 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_SPI1_Init(void)
+static void MX_UART7_Init(void)
 {
 
-  /* USER CODE BEGIN SPI1_Init 0 */
+  /* USER CODE BEGIN UART7_Init 0 */
 
-  /* USER CODE END SPI1_Init 0 */
+  /* USER CODE END UART7_Init 0 */
 
-  /* USER CODE BEGIN SPI1_Init 1 */
+  /* USER CODE BEGIN UART7_Init 1 */
 
-  /* USER CODE END SPI1_Init 1 */
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_SLAVE;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_HARD_INPUT;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  /* USER CODE END UART7_Init 1 */
+  huart7.Instance = UART7;
+  huart7.Init.BaudRate = 9600;
+  huart7.Init.WordLength = UART_WORDLENGTH_8B;
+  huart7.Init.StopBits = UART_STOPBITS_1;
+  huart7.Init.Parity = UART_PARITY_NONE;
+  huart7.Init.Mode = UART_MODE_TX_RX;
+  huart7.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart7.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart7) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN SPI1_Init 2 */
+  /* USER CODE BEGIN UART7_Init 2 */
 
-  /* USER CODE END SPI1_Init 2 */
+  /* USER CODE END UART7_Init 2 */
 
 }
 
@@ -257,15 +227,12 @@ static void MX_SPI1_Init(void)
 static void MX_DMA_Init(void) 
 {
   /* DMA controller clock enable */
-  __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA2_Stream0_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 1, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-  /* DMA2_Stream3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 1, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+  /* DMA1_Stream3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 
 }
 
@@ -279,8 +246,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
@@ -295,6 +264,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(Button_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : SS_Pin */
+  GPIO_InitStruct.Pin = SS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Buzzer_Pin Lock_Pin */
   GPIO_InitStruct.Pin = Buzzer_Pin|Lock_Pin;
@@ -353,7 +328,7 @@ void Read_Buzzer(){
 	else if(stat == GPIO_PIN_RESET){
 		pData[2] = REPLY_Reset;
 	}
-	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+	UART_Reply(MODULE_Buzzer,pData[2]);
 }
 void Read_Led(){
 	GPIO_PinState stat = HAL_GPIO_ReadPin(Led_GPIO_Port,Led_Pin);
@@ -364,7 +339,7 @@ void Read_Led(){
 	else if(stat == GPIO_PIN_RESET){
 		pData[2] = REPLY_Reset;
 	}
-	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+	UART_Reply(MODULE_Led,pData[2]);
 }
 void Read_Lock(){
 	GPIO_PinState stat = HAL_GPIO_ReadPin(Lock_GPIO_Port,Lock_Pin);
@@ -375,27 +350,19 @@ void Read_Lock(){
 	else if(stat == GPIO_PIN_RESET){
 		pData[2] = REPLY_Reset;
 	}
-	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
+	UART_Reply(MODULE_Lock,pData[2]);
 }
-void SPI_Reply(uint8_t module, uint8_t data)
+
+int count =0;
+void UART_Reply(uint8_t module, uint8_t data)
 {
 	uint8_t pData[]={module,1,data};
-	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
-	HAL_SPI_Transmit(&hspi1, (uint8_t*)&(pData[0]), sizeof(pData),500);
-	reset = 1;
-}
-volatile uint8_t temp[3]={0,0,0};
-volatile uint8_t count =0;
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
-	spi_data spi;
-	spi.module = spi_receive[0];
-	spi.size = spi_receive[1];
-	spi.data = spi_receive[2];
 	count++;
-	//if(count ==2){
-		DMAS2_Func(spi);
+	if(count >2){
+		HAL_UART_Transmit(&huart7, (uint8_t*)&pData[0],3, 200);
 		count =0;
-	//}
+		reset =1;
+	}
 }
 /* USER CODE END 4 */
 

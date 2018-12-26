@@ -52,7 +52,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+extern UART_HandleTypeDef huart7;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -80,12 +80,15 @@ extern void Open_Buzzer();
 extern void Close_Buzzer();
 extern void OpenThenClose_Lock();
 extern void SPI_Reply(uint8_t module, uint8_t data);
+extern void UART_Reply(uint8_t module, uint8_t data);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
 #define Button_Pin GPIO_PIN_0
 #define Button_GPIO_Port GPIOA
 #define Button_EXTI_IRQn EXTI0_IRQn
+#define SS_Pin GPIO_PIN_10
+#define SS_GPIO_Port GPIOE
 #define Buzzer_Pin GPIO_PIN_12
 #define Buzzer_GPIO_Port GPIOB
 #define Lock_Pin GPIO_PIN_13

@@ -48,6 +48,7 @@ extern volatile uint8_t buttonPressed;
 //Functions
 void Slave_StateMachine();
 void IDLE_Func();
+void Slave_Func();
 void SPI_Receive_Buffer();
 void DMAS2_Func(spi_data data);
 #endif // _SLAVEFUNC_H
