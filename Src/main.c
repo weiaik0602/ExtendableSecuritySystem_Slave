@@ -123,7 +123,7 @@ int main(void)
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_DMA(&huart7, (uint8_t*)&spi_receive,3);
-
+  uint8_t empty[] = {0,0,0,0};
   //HAL_UART_DeInit(&huart4);
   /* USER CODE END 2 */
 
@@ -131,6 +131,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+  	if(lockOpened == 1){
+  		HAL_Delay(2000);
+  		HAL_GPIO_WritePin(Lock_GPIO_Port,Lock_Pin,RESET);
+  	}
+  	if(reset == 1){
+  		HAL_Delay(20);
+  		HAL_UART_DMAPause(&huart7);
+  		spi_receive[0] = 0;
+  		spi_receive[1] = 0;
+  		spi_receive[2] = 0;
+  		HAL_UART_DMAResume(&huart7);
+  		reset = 0;
+  	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -231,7 +244,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Stream3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 
 }
@@ -358,11 +371,13 @@ void UART_Reply(uint8_t module, uint8_t data)
 {
 	uint8_t pData[]={module,1,data};
 	count++;
-	if(count >2){
-		HAL_UART_Transmit(&huart7, (uint8_t*)&pData[0],3, 200);
-		count =0;
-		reset =1;
-	}
+	HAL_UART_Transmit(&huart7, (uint8_t*)&pData[0],3, 20);
+	HAL_UART_Transmit(&huart7, (uint8_t*)&pData[0],3, 20);
+//	if(count >2){
+//		HAL_UART_Transmit(&huart7, (uint8_t*)&pData[0],3, 200);
+//		count =0;
+//		reset =1;
+//	}
 }
 /* USER CODE END 4 */
 

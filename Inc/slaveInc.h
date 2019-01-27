@@ -1,3 +1,224 @@
+/*
+ * myHeader.h
+ *
+ *  Created on: 10 Jul 2018
+ *      Author: ng_we
+ */
+#include <stdint.h>
+#include <stdio.h>
+#include "SlaveFunc.h"
+#include "main.h"
+
+
+//global variable
+// define variables
+//private definition
+//#define SEMIHOSTING
+
+
+#ifndef SEMIHOSTING
+#define log(...)
+#else
+#define log printf
+#endif
+/*
+ * myHeader.h
+ *
+ *  Created on: 10 Jul 2018
+ *      Author: ng_we
+ */
+#include <stdint.h>
+#include <stdio.h>
+#include "LAFunction.h"
+
+
+// definition
+
+#define SEMIHOSTING
+
+
+#ifndef SEMIHOSTING
+#define log(...)
+#else
+#define log printf
+#endif
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.h
+  * @brief          : Header for main.c file.
+  *                   This file contains the common defines of the application.
+  ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
+  *
+  * COPYRIGHT(c) 2018 STMicroelectronics
+  *
+  * Redistribution and use in source and binary forms, with or without modification,
+  * are permitted provided that the following conditions are met:
+  *   1. Redistributions of source code must retain the above copyright notice,
+  *      this list of conditions and the following disclaimer.
+  *   2. Redistributions in binary form must reproduce the above copyright notice,
+  *      this list of conditions and the following disclaimer in the documentation
+  *      and/or other materials provided with the distribution.
+  *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  *      may be used to endorse or promote products derived from this software
+  *      without specific prior written permission.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __MAIN_H
+#define __MAIN_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_hal.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+extern UART_HandleTypeDef huart7;
+/* USER CODE END Includes */
+
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
+
+/* USER CODE END ET */
+
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
+
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
+
+/* USER CODE BEGIN EFP */
+extern void Open_LED();
+extern void Close_LED();
+extern void Open_Buzzer();
+extern void Close_Buzzer();
+extern void OpenThenClose_Lock();
+extern void UART_Reply(uint8_t module, uint8_t data);
+extern void Read_Buzzer();
+extern void Read_Led();
+extern void Read_Lock();
+/* USER CODE END EFP */
+
+/* Private defines -----------------------------------------------------------*/
+#define Button_Pin GPIO_PIN_0
+#define Button_GPIO_Port GPIOA
+#define Button_EXTI_IRQn EXTI0_IRQn
+#define SS_Pin GPIO_PIN_10
+#define SS_GPIO_Port GPIOE
+#define Buzzer_Pin GPIO_PIN_12
+#define Buzzer_GPIO_Port GPIOB
+#define Lock_Pin GPIO_PIN_13
+#define Lock_GPIO_Port GPIOB
+#define Led_Pin GPIO_PIN_13
+#define Led_GPIO_Port GPIOG
+/* USER CODE BEGIN Private defines */
+
+/* USER CODE END Private defines */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __MAIN_H */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#ifndef _MOCKFUNC_H
+#define _MOCKFUNC_H
+#include <stdint.h>
+
+
+void Open_LED();
+void Close_LED();
+void Open_Buzzer();
+void Close_Buzzer();
+void OpenThenClose_Lock();
+void SPI_Reply(uint8_t module, uint8_t data);
+#endif // _MOCKFUNC_H
+#ifndef _SLAVEFUNC_H
+#define _SLAVEFUNC_H
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+typedef enum sm_state sm_state;
+enum sm_state{
+  Init,
+  Idle
+};
+
+typedef struct spi_data spi_data;
+struct spi_data{
+  uint8_t module;
+  uint8_t size;
+  uint8_t data;
+};
+
+//define
+#define SPI_SIZE 3
+#define BUFFER_SIZE 5
+//module
+#define MODULE_Self 0
+#define MODULE_Buzzer 1
+#define MODULE_Lock 2
+#define MODULE_Led 3
+#define MODULE_Button 4
+//action
+#define ACTION_Open 0xa
+#define ACTION_Close 0xb
+#define ACTION_Read 0xc
+//reply
+#define REPLY_Set 0xa
+#define REPLY_Reset 0xb
+#define REPLY_Here 0xa
+#define REPLY_NA 0xF
+
+//variables
+sm_state slave_sm_state;
+extern volatile spi_data spi_receive_buffer[BUFFER_SIZE],spi_send_buffer[BUFFER_SIZE];
+extern volatile uint8_t spi_receive[SPI_SIZE];
+extern volatile uint8_t spi_receive_position, spi_use_position;
+extern volatile uint8_t buttonPressed;
+
+
+
+
+//Functions
+void Slave_StateMachine();
+void IDLE_Func();
+void Slave_Func();
+void SPI_Receive_Buffer();
+void DMAS2_Func(spi_data data);
+#endif // _SLAVEFUNC_H
 /**
   ******************************************************************************
   * @file    stm32f4xx_hal_conf.h
@@ -447,5 +668,91 @@
 
 #endif /* __STM32F4xx_HAL_CONF_H */
  
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file    stm32f4xx_it.h
+  * @brief   This file contains the headers of the interrupt handlers.
+  ******************************************************************************
+  *
+  * COPYRIGHT(c) 2018 STMicroelectronics
+  *
+  * Redistribution and use in source and binary forms, with or without modification,
+  * are permitted provided that the following conditions are met:
+  *   1. Redistributions of source code must retain the above copyright notice,
+  *      this list of conditions and the following disclaimer.
+  *   2. Redistributions in binary form must reproduce the above copyright notice,
+  *      this list of conditions and the following disclaimer in the documentation
+  *      and/or other materials provided with the distribution.
+  *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  *      may be used to endorse or promote products derived from this software
+  *      without specific prior written permission.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __STM32F4xx_IT_H
+#define __STM32F4xx_IT_H
+
+#ifdef __cplusplus
+ extern "C" {
+#endif 
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
+
+/* USER CODE END ET */
+
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
+
+/* Exported functions prototypes ---------------------------------------------*/
+void NMI_Handler(void);
+void HardFault_Handler(void);
+void MemManage_Handler(void);
+void BusFault_Handler(void);
+void UsageFault_Handler(void);
+void SVC_Handler(void);
+void DebugMon_Handler(void);
+void PendSV_Handler(void);
+void SysTick_Handler(void);
+void EXTI0_IRQHandler(void);
+void DMA1_Stream3_IRQHandler(void);
+/* USER CODE BEGIN EFP */
+
+/* USER CODE END EFP */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __STM32F4xx_IT_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

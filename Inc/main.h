@@ -79,8 +79,10 @@ extern void Close_LED();
 extern void Open_Buzzer();
 extern void Close_Buzzer();
 extern void OpenThenClose_Lock();
-extern void SPI_Reply(uint8_t module, uint8_t data);
 extern void UART_Reply(uint8_t module, uint8_t data);
+extern void Read_Buzzer();
+extern void Read_Led();
+extern void Read_Lock();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
